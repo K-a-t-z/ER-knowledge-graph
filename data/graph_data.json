@@ -1,0 +1,45 @@
+{
+    "entities": [
+        {
+            "entity": "Sundar Pichai",
+            "label": "PERSON"
+        },
+        {
+            "entity": "Google",
+            "label": "ORG"
+        },
+        {
+            "entity": "2025",
+            "label": "DATE"
+        },
+        {
+            "entity": "Charles Babbage",
+            "label": "PERSON"
+        },
+        {
+            "entity": "Shrujan Katama",
+            "label": "PERSON"
+        },
+        {
+            "entity": "Starbucks",
+            "label": "ORG"
+        }
+    ],
+    "relationships": [
+        {
+            "source": "Shrujan Katama",
+            "relation": "LOCATED_IN",
+            "target": "Starbucks"
+        },
+        {
+            "source": "Shrujan Katama",
+            "relation": "WORKS_AS",
+            "target": "Starbucks"
+        },
+        {
+            "source": "Shrujan Katama",
+            "relation": "WORKS_AT",
+            "target": "Starbucks"
+        }
+    ]
+}
