@@ -1,28 +1,28 @@
 {
     "entities": [
         {
-            "entity": "Sundar Pichai",
+            "entity": "Elon Musk",
             "label": "PERSON"
         },
         {
-            "entity": "Google",
-            "label": "ORG"
-        },
-        {
-            "entity": "2025",
+            "entity": "2002",
             "label": "DATE"
         },
         {
-            "entity": "Charles Babbage",
-            "label": "PERSON"
-        },
-        {
-            "entity": "Shrujan Katama",
-            "label": "PERSON"
-        },
-        {
-            "entity": "Starbucks",
+            "entity": "Tesla",
             "label": "ORG"
+        },
+        {
+            "entity": "AI",
+            "label": "ORG"
+        },
+        {
+            "entity": "OpenAI",
+            "label": "PERSON"
+        },
+        {
+            "entity": "Sam Altman",
+            "label": "PERSON"
         }
     ]
 }

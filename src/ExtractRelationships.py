@@ -9,12 +9,14 @@ def extract_relationships(text: str):
     doc = nlp(text)
     relationships = []
     relation_keywords = {
+        "founded": "FOUNDED",
+        "founded by": "FOUNDED_BY",
         "CEO": "CEO_OF",
-        "father": "FATHER_OF",
-        "father of": "FATHER_OF",
-        "located in": "LOCATED_IN",
-        "barista": "WORKS_AS",
-        "barista at": "WORKS_AT",
+        "chief executive": "CEO_OF",
+        "works at": "WORKS_AT",
+        "based in": "BASED_IN",
+        "partnered with": "PARTNERED_WITH",
+        "acquired": "ACQUIRED",
     }
 
     for sent in doc.sents:

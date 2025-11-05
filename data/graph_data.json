@@ -1,45 +1,45 @@
 {
     "entities": [
         {
-            "entity": "Sundar Pichai",
+            "entity": "Elon Musk",
             "label": "PERSON"
         },
         {
-            "entity": "Google",
-            "label": "ORG"
-        },
-        {
-            "entity": "2025",
+            "entity": "2002",
             "label": "DATE"
         },
         {
-            "entity": "Charles Babbage",
-            "label": "PERSON"
-        },
-        {
-            "entity": "Shrujan Katama",
-            "label": "PERSON"
-        },
-        {
-            "entity": "Starbucks",
+            "entity": "Tesla",
             "label": "ORG"
+        },
+        {
+            "entity": "AI",
+            "label": "ORG"
+        },
+        {
+            "entity": "OpenAI",
+            "label": "PERSON"
+        },
+        {
+            "entity": "Sam Altman",
+            "label": "PERSON"
         }
     ],
     "relationships": [
         {
-            "source": "Shrujan Katama",
-            "relation": "LOCATED_IN",
-            "target": "Starbucks"
+            "source": "Elon Musk",
+            "relation": "FOUNDED",
+            "target": "2002"
         },
         {
-            "source": "Shrujan Katama",
-            "relation": "WORKS_AS",
-            "target": "Starbucks"
+            "source": "OpenAI",
+            "relation": "FOUNDED",
+            "target": "Sam Altman"
         },
         {
-            "source": "Shrujan Katama",
-            "relation": "WORKS_AT",
-            "target": "Starbucks"
+            "source": "OpenAI",
+            "relation": "FOUNDED_BY",
+            "target": "Sam Altman"
         }
     ]
 }
