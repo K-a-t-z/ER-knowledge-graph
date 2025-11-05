@@ -5,9 +5,22 @@ from NormalizeEntities import normalize_entity, remove_duplicates
 
 nlp = spacy.load("en_core_web_sm")
 
-def extract_relationships(text: str):
+def extract_relationships(text, entities=None):
     doc = nlp(text)
     relationships = []
+    if entities:
+        entity_names = [e[0] if isinstance(e, tuple) else e["name"] for e in entities]
+        for i, src in enumerate(entity_names):
+            for tgt in entity_names[i+1:]:
+                if src in text and tgt in text:
+                    relationships.append({
+                        "source": src,
+                        "target": tgt,
+                        "type": "RELATED_TO"
+                    })
+    else:
+        pass
+    return relationships
     relation_keywords = {
         "founded": "FOUNDED",
         "founded by": "FOUNDED_BY",

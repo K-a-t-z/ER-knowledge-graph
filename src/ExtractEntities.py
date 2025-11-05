@@ -3,7 +3,7 @@ import spacy
 def extract_entities(text: str):
     nlp = spacy.load("en_core_web_sm")
     doc = nlp(text)
-    entities = [(ent.text, ent.label_) for ent in doc.ents]
+    entities = [{"name": ent.text, "type": ent.label_} for ent in doc.ents]
     return entities
 
 if __name__ == "__main__":
@@ -14,5 +14,5 @@ if __name__ == "__main__":
     
     entities = extract_entities(text)
 
-    for entity, label in entities:
-        print(f"{entity:<20} -> {label}")
+    for ent in entities:
+        print(f"{ent['name']:<20} -> {ent['type']}")

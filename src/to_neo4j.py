@@ -28,16 +28,25 @@ class KnowledgeGraphUploader:
             relation=relation,
         )
     
-    def upload(self, entities, relationships):
+    def upload_data(self, entities, relationships, doc_name=None):
         with self.driver.session() as session:
             for ent in entities:
-                session.execute_write(self.create_entity, ent["entity"], ent["label"])
+                session.run(
+                    """
+                    MERGE (e:Entity {name: $name})
+                    ON CREATE SET e.type = $type
+                    SET e.source_doc = coalesce(e.source_doc, []) + [$doc_name]
+                    """,
+                    name=ent["name"], type=ent["type"], doc_name=doc_name
+                )
             for rel in relationships:
-                session.execute_write(
-                    self.create_relationship,
-                    rel["source"],
-                    rel["relation"],
-                    rel["target"],
+                session.run(
+                    """
+                    MATCH (a:Entity {name: $source})
+                    MATCH (b:Entity {name: $target})
+                    MERGE (a)-[r:RELATION {type: $type}]->(b)
+                    """,
+                    source=rel["source"], target=rel["target"], type=rel["type"]
                 )
         print(f"Uploaded {len(entities)} entities and {len(relationships)} relationships to Neo4j.")
 
@@ -54,5 +63,5 @@ if __name__ == "__main__":
     password = "entityrelationships"
 
     uploader = KnowledgeGraphUploader(uri, user, password)
-    uploader.upload(entities, relationships)
+    uploader.upload_data(entities, relationships)
     uploader.close()

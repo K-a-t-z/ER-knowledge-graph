@@ -1,0 +1,4 @@
+Google acquired DeepMind in 2014.
+DeepMind has created several breakthroughs in artificial intelligence, including AlphaGo.
+OpenAI and DeepMind are considered rivals in AI research.
+Both companies use TensorFlow and PyTorch for model development.
