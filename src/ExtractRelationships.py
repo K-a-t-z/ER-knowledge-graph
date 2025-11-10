@@ -1,74 +1,64 @@
+import re
 import spacy
-import json
-from ExtractEntities import extract_entities
-from NormalizeEntities import normalize_entity, remove_duplicates
 
-nlp = spacy.load("en_core_web_sm")
+nlp = spacy.load("en_core_web_trf")
 
-def extract_relationships(text, entities=None):
-    doc = nlp(text)
+def extract_relationships(text):
     relationships = []
-    if entities:
-        entity_names = [e[0] if isinstance(e, tuple) else e["name"] for e in entities]
-        for i, src in enumerate(entity_names):
-            for tgt in entity_names[i+1:]:
-                if src in text and tgt in text:
-                    relationships.append({
-                        "source": src,
-                        "target": tgt,
-                        "type": "RELATED_TO"
-                    })
-    else:
-        pass
-    return relationships
-    relation_keywords = {
+
+    rel_keywords = {
         "founded": "FOUNDED",
-        "founded by": "FOUNDED_BY",
-        "CEO": "CEO_OF",
-        "chief executive": "CEO_OF",
-        "works at": "WORKS_AT",
-        "based in": "BASED_IN",
-        "partnered with": "PARTNERED_WITH",
+        "co-founded": "CO-FOUNDED",
+        "cofounded": "CO-FOUNDED",
+        "developed": "DEVELOPED",
+        "leads": "LEADS",
+        "led": "LEADS",
         "acquired": "ACQUIRED",
+        "owns": "OWNS",
+        "created": "CREATED",
+        "designed": "DESIGNED"
     }
 
-    for sent in doc.sents:
-        sent_text = sent.text.lower()
-        ents = [(ent.text, ent.label_) for ent in sent.ents]
+    rel_pattern = re.compile("|".join(rel_keywords.keys()), re.IGNORECASE)
+    fallback_ent_pattern = re.compile(r"\b([A-Z][a-zA-Z0-9&.\-]+(?:\s+[A-Z][a-zA-Z0-9&.\-]+)*)\b")
+
+    sentences = [s.strip() for s in re.split(r'(?<=[.!?])\s+', text) if s.strip()]
+
+    for sent_text in sentences:
+        doc = nlp(sent_text)
+        matches = list(rel_pattern.finditer(sent_text))
+        ents = [ent for ent in doc.ents]
 
         if len(ents) < 2:
+            for match in fallback_ent_pattern.finditer(sent_text):
+                ents.append(type("Entity", (), {"text": match.group(0), "start_char": match.start()}))
+        
+        if not matches or len(ents) < 2:
             continue
 
-        for phrase, rel_label in relation_keywords.items():
-            if phrase in sent_text:
-                source = normalize_entity(ents[0][0])
-                target = normalize_entity(ents[-1][0])
-                relationships.append(
-                    {"source": source, "relation": rel_label, "target": target}
-                )
+        for match in matches:
+            relation_word = match.group(0).lower()
+            relation = rel_keywords.get(relation_word.replace("-", ""), relation_word.upper())
+            rel_start = match.start()
+
+            before_ents = [ent for ent in ents if ent.start_char < rel_start]
+            after_ents = [ent for ent in ents if ent.start_char > rel_start]
+
+            if before_ents and after_ents:
+                subj = before_ents[-1].text
+                obj = after_ents[0].text
+                relationships.append((subj, relation, obj))
+    
     return relationships
 
-def SaveGraphData(entities, relationships, output_path="data/graph_data.json"):
-
-    data = {
-        "entities": entities,
-        "relationships": relationships,
-    }
-
-    with open(output_path, "w") as file:
-        json.dump(data, file, indent=4)
-    
-    print(f"Saved {len(entities)} entities and {len(relationships)} relationships to {output_path}")
-
 if __name__ == "__main__":
+    text = """Elon Musk founded SpaceX in 2002.
+    OpenAI developed ChatGPT.
+    Sundar Pichai leads Google.
+    Microsoft acquired Github in 2018.
+    Steve Jobs co-founded Apple with Steve Wozniak."""
 
-    filepath = "data/samples/sample1.txt"
-    with open(filepath, "r") as file:
-        text = file.read()
-    
-    raw_entities = extract_entities(text)
-    unique_entities = remove_duplicates(raw_entities)
+    relations = extract_relationships(text)
 
-    relationships = extract_relationships(text)
-
-    SaveGraphData(unique_entities, relationships)
+    for r in relations:
+        print(f"{r[0]} -- {r[1]} --> {r[2]}")

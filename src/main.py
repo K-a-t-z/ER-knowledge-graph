@@ -1,4 +1,4 @@
-from RelationshipExtraction import extract_relationships
+from ExtractRelationships import extract_relationships
 from neo4j_handler import Neo4jHandler
 
 if __name__ == "__main__":
