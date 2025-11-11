@@ -19,6 +19,3 @@ env/
 
 # Logs
 *.log
-
-# Temporary
-Visualize*.py
