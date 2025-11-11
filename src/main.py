@@ -1,9 +1,6 @@
-from data_loader import load_documents
-# from ExtractEntities import extract_entities
+from LoadData import load_documents
 from ExtractRelationships import extract_relationships
 from neo4j_handler import Neo4jHandler
-# from to_neo4j import upload_data
-# from VisualizeGraph import visualize_graph
 
 if __name__ == "__main__":
     print("\n Starting Entity-Relationship Extraction Pipeline...")
@@ -16,17 +13,11 @@ if __name__ == "__main__":
 
     for filename, text in docs.items():
         print(f" Processing document: {filename}")
-        # entities = extract_entities(text)
         rels = extract_relationships(text)
         # print(rels)
         for subj, rel, obj in rels:
             print(f" --- Extracted relationship: {subj} -- {rel} --> {obj}")
         all_relationships.extend(rels)
-        # all_data.append({
-        #     "doc_name": doc_name,
-        #     "entities": entities,
-        #     "relationships": relationships
-        # })
     
     print("\n Entity and Relationship extraction completed.\n")
 

@@ -1,5 +1,5 @@
 # Python
-___pycache__/
+__pycache__/
 *.pyc
 *.pyo
 *.pyd
@@ -19,3 +19,6 @@ env/
 
 # Logs
 *.log
+
+# Temporary
+Visualize*.py
