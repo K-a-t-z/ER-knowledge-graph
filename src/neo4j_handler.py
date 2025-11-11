@@ -15,9 +15,10 @@ class Neo4jHandler:
     def upload_relationship(self, relationships):
         with self.driver.session() as session:
             for subj, rel, obj in relationships:
+                safe_rel = rel.upper().replace(" ", "_").replace("-", "_")
                 query = f"""
                 MERGE (a:Entity {{name: $subj}})
                 MERGE (b:Entity {{name: $obj}})
-                MERGE (a)-[r:{rel}]->(b)
+                MERGE (a)-[r:{safe_rel}]->(b)
                 """
                 session.run(query, subj=subj, obj=obj)

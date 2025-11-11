@@ -1,3 +1,94 @@
+from transformers import pipeline
+import re
+
+re_pipeline = pipeline("text2text-generation", model="Babelscape/rebel-large")
+
+def clean_text(text):
+    text = re.sub(r'\s+', ' ', text)
+    return text.strip()
+
+def parse_rebel_output(generated_text: str):
+    triples = []
+    text = generated_text.strip()
+    if not text:
+        return triples
+    text = re.sub(r'\s{3,}', '  ', text)
+    parts = [p.strip() for p in re.split(r'\s{2,}', text) if p.strip()]
+    if len(parts) >= 3:
+        for i in range(0, len(parts), 3):
+            if i + 2 < len(parts):
+                subj = parts[i]
+                obj = parts[i+1]
+                rel = parts[i+2]
+                rel = rel.strip().strip(".")
+                triples.append((subj, rel, obj))
+    if not triples:
+        cand = re.findall(r'([A-Z][\w\-\s&\.]{1,80}?)\s{1,3}([a-z][a-z\s]{1,40}?)\s{1,3}([A-Z][\w\-\s&\.]{1,80}?)', text)
+        for c in cand:
+            subj, rel, obj = c
+            triples.append((subj.strip(), rel.strip(), obj.strip()))
+    return triples
+
+def postprocess_triples(triples):
+    cleaned = []
+    seen = set()
+    for subj, rel, obj in triples:
+        if not subj or not obj or not rel:
+            continue
+        if re.fullmatch(r'[\d\W_]+', subj) or re.fullmatch(r'[\d\W_]+', obj):
+            continue
+        if len(rel.split()) > 7:
+            continue
+        if not (re.search(r'[A-Z]', subj) or re.search(r'[A-Z]', obj)):
+            continue
+        subj_norm = re.sub(r'\s+', ' ', subj).strip(" ,.-")
+        rel_norm = re.sub(r'\s+', ' ', rel).strip(" ,.-")
+        obj_norm = re.sub(r'\s+', ' ', obj).strip(" ,.-")
+        triple = (subj_norm, rel_norm.lower(), obj_norm)
+        if triple not in seen:
+            seen.add(triple)
+            cleaned.append(triple)
+    return cleaned
+
+def extract_relationships(text: str):
+    text = clean_text(text)
+    triples = []
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+    for sentence in sentences:
+        if len(sentence.strip()) < 10:
+            continue
+        try:
+            outputs = re_pipeline(
+                sentence,
+                max_length=512,
+                num_beams=3,
+                truncation=True,
+            )
+            generated_text = outputs[0]["generated_text"]
+            # print("\n ===== MODEL OUTPUT RAW =====\n", generated_text)
+            raw_triples = parse_rebel_output(generated_text)
+            extracted_triples = postprocess_triples(raw_triples)
+            triples.extend(extracted_triples)
+            # for subj, rel, obj in extracted_triples:
+            #     print(f" --- Extracted rel: {subj} -- {rel.upper()} --> {obj}")
+            #     triples.append((subj, rel, obj))
+        except Exception as e:
+            print(f"Error processing sentence: {e}")
+    return triples
+
+if __name__ == "__main__":
+    sample_text = """Elon Musk founded SpaceX in 2002.
+    OpenAI developed ChatGPT.
+    Sundar Pichai leads Google.
+    Microsoft acquired GitHub in 2018.
+    Steve Jobs co-founded Apple with Steve Wozniak."""
+
+    relationships = extract_relationships(sample_text)
+    print("\n Final extracted relationships:")
+    for r in relationships:
+        print(f" {r[0]} -- {r[1]} --> {r[2]}")
+
+"""
 import re
 import spacy
 
@@ -148,3 +239,4 @@ def extract_relationships_spec(text):
             cleaned.append(r)
     
     return cleaned
+"""
