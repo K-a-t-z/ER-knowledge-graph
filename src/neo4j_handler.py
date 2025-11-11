@@ -12,16 +12,12 @@ class Neo4jHandler:
         with self.driver.session() as session:
             session.run("MATCH (n) DETACH DELETE n")
     
-    def add_relationship(self, subj, rel, obj):
+    def upload_relationship(self, relationships):
         with self.driver.session() as session:
-            session.execute_write(self._create_and_link, subj, rel, obj)
-    
-    @staticmethod
-    def _create_and_link(tx, subj, rel, obj):
-        safe_rel = rel.upper().replace("-", "_").replace(" ", "_")
-        query = (
-            "MERGE (a:Entity {name: $subj}) "
-            "MERGE (b:Entity {name: $obj}) "
-            f"MERGE (a)-[r:{safe_rel}]->(b)"
-        )
-        tx.run(query, subj=subj, obj=obj)
+            for subj, rel, obj in relationships:
+                query = f"""
+                MERGE (a:Entity {{name: $subj}})
+                MERGE (b:Entity {{name: $obj}})
+                MERGE (a)-[r:{rel}]->(b)
+                """
+                session.run(query, subj=subj, obj=obj)
